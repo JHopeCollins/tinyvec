@@ -26,6 +26,13 @@
 
 
 /*
+ * Identity function alternative to conjugate for real scalars
+ */
+static inline double _tinyvec_idd(const double x){ return x; }
+static inline float  _tinyvec_idf(const float  x){ return x; }
+
+
+/*
  * Vector struct for double precision data
  */
 # define STRUCT(p, dtype) \
@@ -41,6 +48,7 @@ p##vector;
  * Create vector of length n
  */
 # define CREATE(p, dtype) \
+static inline  \
 int p##vector_create(const size_t n, \
                p##vector**   vec) \
 { \
@@ -64,6 +72,7 @@ int p##vector_create(const size_t n, \
  * Free vector
  */
 # define DESTROY(p, dtype) \
+static inline  \
 int p##vector_destroy(p##vector** vec) \
 { \
    if(((*vec)->data) != NULL){ free((*vec)->data); } \
@@ -75,6 +84,7 @@ int p##vector_destroy(p##vector** vec) \
  * Copy data from one vector to an existing vector
  */
 # define COPY(p, dtype) \
+static inline  \
 int p##vector_copy(p##vector const *const src, \
                    p##vector *const       dst) \
 { \
@@ -87,6 +97,7 @@ int p##vector_copy(p##vector const *const src, \
  * Create a new vector by duplicating an existing vector
  */
 # define DUPLICATE(p, dtype) \
+static inline  \
 int p##vector_duplicate(p##vector const *const src, \
                         p##vector**            dst) \
 { \
@@ -101,6 +112,7 @@ int p##vector_duplicate(p##vector const *const src, \
  * y = a*x + y
  */
 # define AXPY(p, dtype) \
+static inline  \
 int p##vector_axpy(dtype const            a, \
                    p##vector const *const x, \
                    p##vector *const       y) \
@@ -118,6 +130,7 @@ int p##vector_axpy(dtype const            a, \
  * y = x + a*y
  */
 # define AYPX(p, dtype) \
+static inline  \
 int p##vector_aypx(dtype const            a, \
                    p##vector const *const x, \
                    p##vector *const       y) \
@@ -135,6 +148,7 @@ int p##vector_aypx(dtype const            a, \
  * y = a*x + b*y
  */
 # define AXPBY(p, dtype) \
+static inline  \
 int p##vector_axpby(dtype const            a, \
                     p##vector const *const x, \
                     dtype const            b, \
@@ -152,6 +166,7 @@ int p##vector_axpby(dtype const            a, \
  * w = a*x + y
  */
 # define WAXPY(p, dtype) \
+static inline  \
 int p##vector_waxpy(p##vector *const       w, \
                     dtype const            a, \
                     p##vector const *const x, \
@@ -170,6 +185,7 @@ int p##vector_waxpy(p##vector *const       w, \
  * w = a*x + b*y
  */
 # define WAXPBY(p, dtype) \
+static inline  \
 int p##vector_waxpby(p##vector *const       w, \
                      dtype const            a, \
                      p##vector const *const x, \
@@ -186,17 +202,30 @@ int p##vector_waxpby(p##vector *const       w, \
 }
 
 /*
+ * Inner product of two p##vector
+ */
+# define INNER(p, dtype, conj) \
+static inline  \
+dtype p##vector_inner(p##vector const *const x, \
+                      p##vector const *const y) \
+{ \
+   check_vectors(x, y); \
+   dtype l = 0; \
+   for( size_t i=0; i<(x->n); ++i ){ l+=(x->data)[i]*conj((x->data)[i]); } \
+   return l; \
+}
+
+/*
  * L2 norm of p##vector
  */
 # define NORM(p, dtype) \
+static inline  \
 dtype p##vector_norm(p##vector const *const x) \
 { \
-   dtype l = 0; \
-   for( size_t i=0; i<(x->n); ++i ){ l+=(x->data)[i]*(x->data)[i]; } \
-   return sqrt(l); \
+   return sqrt(p##vector_inner(x, x)); \
 }
 
-# define GENERATE_TINYVEC(p, dtype) \
+# define GENERATE_TINYVEC(p, dtype, conj) \
 STRUCT(   p, dtype) \
 CREATE(   p, dtype) \
 DESTROY(  p, dtype) \
@@ -207,13 +236,14 @@ AYPX(     p, dtype) \
 AXPBY(    p, dtype) \
 WAXPY(    p, dtype) \
 WAXPBY(   p, dtype) \
+INNER(    p, dtype, conj) \
 NORM(     p, dtype)
 
-GENERATE_TINYVEC(d, double)
-GENERATE_TINYVEC(f, float)
+GENERATE_TINYVEC(d, double, _tinyvec_idd)
+GENERATE_TINYVEC(f, float,  _tinyvec_idf)
 # ifdef TINYVEC_COMPLEX
-GENERATE_TINYVEC(cd, complex double)
-GENERATE_TINYVEC(cf, complex float)
+GENERATE_TINYVEC(cd, complex double, conj)
+GENERATE_TINYVEC(cf, complex float, conjf)
 # endif
 
 # undef check_vectors
@@ -227,6 +257,7 @@ GENERATE_TINYVEC(cf, complex float)
 # undef AXPBY
 # undef WAXPY
 # undef WAXPBY
+# undef INNER
 # undef NORM
 # undef GENERATE_TINYVEC
 

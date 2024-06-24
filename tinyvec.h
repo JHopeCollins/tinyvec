@@ -7,6 +7,7 @@
  *   - is implemented for real and complex scalar types
  */
 
+
 # ifndef _TINY_HEADER
 # define _TINY_HEADER
 
@@ -65,7 +66,6 @@ int p##vector_create(const size_t n, \
    (*vec)->n = n; \
    return 0; \
 }
-//CREATE(d, double)
 
 
 /*
@@ -80,6 +80,7 @@ int p##vector_destroy(p##vector** vec) \
    return 0; \
 }
 
+
 /*
  * Copy data from one vector to an existing vector
  */
@@ -92,6 +93,7 @@ int p##vector_copy(p##vector const *const src, \
    for( size_t i=0; i<(src->n); ++i ){ (dst->data)[i] = (src->data)[i]; } \
    return 0; \
 }
+
 
 /*
  * Create a new vector by duplicating an existing vector
@@ -162,6 +164,7 @@ int p##vector_axpby(dtype const            a, \
    return 0; \
 }
 
+
 /*
  * w = a*x + y
  */
@@ -180,6 +183,7 @@ int p##vector_waxpy(p##vector *const       w, \
    } \
    return 0; \
 }
+
 
 /*
  * w = a*x + b*y
@@ -201,6 +205,7 @@ int p##vector_waxpby(p##vector *const       w, \
    return 0; \
 }
 
+
 /*
  * Inner product of two p##vector
  */
@@ -215,6 +220,7 @@ dtype p##vector_inner(p##vector const *const x, \
    return l; \
 }
 
+
 /*
  * L2 norm of p##vector
  */
@@ -224,6 +230,7 @@ dtype p##vector_norm(p##vector const *const x) \
 { \
    return sqrt(p##vector_inner(x, x)); \
 }
+
 
 # define GENERATE_TINYVEC(p, dtype, conj) \
 STRUCT(   p, dtype) \

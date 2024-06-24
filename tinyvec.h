@@ -40,7 +40,7 @@ static inline float  _tinyvec_idf(const float  x){ return x; }
 typedef struct _##p##vector \
 { \
    size_t     n; \
-   dtype *data; \
+   dtype  *data; \
 } \
 p##vector;
 
@@ -50,8 +50,8 @@ p##vector;
  */
 # define CREATE(p, dtype) \
 static inline  \
-int p##vector_create(const size_t n, \
-               p##vector**   vec) \
+int p##vector_create(const size_t   n, \
+                     p##vector**  vec) \
 { \
    (*vec) = (p##vector*)malloc(sizeof(p##vector)); \
    if((*vec)==NULL){ free(*vec); return 1; } \
